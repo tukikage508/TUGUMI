@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 from collections import deque
 import json
@@ -69,7 +69,7 @@ class TaskMemory:
         }
         self.save_memory()
     
-    def get_cached_solution(self, problem_key: str) -> str | None:
+    def get_cached_solution(self, problem_key: str) -> Optional[str]:
         """Retrieve cached solution if available"""
         return self.solution_cache.get(problem_key, {}).get("solution")
     
@@ -77,7 +77,7 @@ class TaskMemory:
         """Find similar error patterns for learning"""
         return [e for e in self.error_patterns if error_type in e["error_type"].lower()]
     
-    def get_tool_stats(self, tool_name: str) -> Dict | None:
+    def get_tool_stats(self, tool_name: str) -> Optional[Dict]:
         """Get tool usage statistics"""
         return self.tool_usage.get(tool_name)
     
