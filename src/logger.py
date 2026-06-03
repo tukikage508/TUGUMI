@@ -14,6 +14,9 @@ class TUGUMILogger:
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.DEBUG)
         
+        # Clear existing handlers to avoid duplicates
+        self.logger.handlers = []
+        
         # File handler
         log_file = self.log_dir / f"{name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         file_handler = logging.FileHandler(log_file)
@@ -36,19 +39,25 @@ class TUGUMILogger:
         self.logger.addHandler(console_handler)
     
     def info(self, msg: str):
+        """Log info message"""
         self.logger.info(msg)
     
     def debug(self, msg: str):
+        """Log debug message"""
         self.logger.debug(msg)
     
     def warning(self, msg: str):
+        """Log warning message"""
         self.logger.warning(msg)
     
     def error(self, msg: str):
+        """Log error message"""
         self.logger.error(msg)
     
     def critical(self, msg: str):
+        """Log critical message"""
         self.logger.critical(msg)
     
     def get_logger(self):
+        """Get underlying logger instance"""
         return self.logger
