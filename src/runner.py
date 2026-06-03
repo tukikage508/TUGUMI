@@ -41,6 +41,7 @@ class AgentRunner:
             }
         
         task_id = str(uuid.uuid4())[:8]
+        agent_state = None
         
         self.logger.info("\n" + "="*70)
         self.logger.info(f"TUGUMI AUTONOMOUS AGENT - Task {task_id}")
@@ -84,8 +85,8 @@ class AgentRunner:
             self.logger.info("\n[EXECUTING AGENT LOOP]")
             final_state = self.compiled_graph.invoke(state)
             
-            agent_state = final_state.get("agent_state")
-            if agent_state:
+            final_agent_state = final_state.get("agent_state")
+            if final_agent_state:
                 summary = final_state.get("summary", {})
                 self.logger.info("\n[TASK RESULTS]")
                 self.logger.info(json.dumps(summary, ensure_ascii=False, indent=2))
@@ -94,7 +95,7 @@ class AgentRunner:
                     "success": True,
                     "task_id": task_id,
                     "summary": summary,
-                    "state": agent_state.to_dict()
+                    "state": final_agent_state.to_dict()
                 }
             else:
                 return {
