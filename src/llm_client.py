@@ -8,7 +8,7 @@ import threading
 class LLMClient:
     """Client for local llama.cpp server with health monitoring"""
     
-    def __init__(self, server_url: str = "http://0.0.0.0:8080", timeout: int = 300):
+    def __init__(self, server_url: str = "http://127.0.0.1:8080", timeout: int = 300):
         self.server_url = server_url
         self.timeout = timeout
         self.health_check_interval = 30  # seconds
@@ -42,7 +42,7 @@ class LLMClient:
                 )
                 self.is_healthy = response.status_code == 200
                 self.last_health_check = datetime.now()
-            except:
+            except Exception:
                 self.is_healthy = False
                 self.last_health_check = datetime.now()
             
