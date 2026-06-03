@@ -1,6 +1,7 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from enum import Enum
 from datetime import datetime
+
 
 class TaskStatus(Enum):
     """Task execution status"""
@@ -14,6 +15,7 @@ class TaskStatus(Enum):
     FAILED = "failed"
     RETRYING = "retrying"
 
+
 class AgentState:
     """Complete agent state for persistent task execution"""
     
@@ -21,6 +23,7 @@ class AgentState:
         self.task_id = task_id
         self.goal = goal
         self.status = TaskStatus.PENDING
+        self.status_text = "pending"  # Added: Human-readable status
         
         # Planning
         self.plan: List[str] = []
@@ -43,7 +46,7 @@ class AgentState:
         # Retry
         self.retry_count = 0
         self.max_retries = 3
-        self.last_error = None
+        self.last_error: Optional[Dict[str, Any]] = None
         
         # Learning
         self.learned_solutions: Dict[str, str] = {}
@@ -54,6 +57,7 @@ class AgentState:
         self.plan = plan
         self.current_step = 0
         self.status = TaskStatus.PLANNING
+        self.status_text = "Creating plan"
     
     def add_thought(self, thought: str):
         """Record agent thought process"""
@@ -93,28 +97,32 @@ class AgentState:
         """Increment retry counter"""
         self.retry_count += 1
         self.status = TaskStatus.RETRYING
+        self.status_text = f"Retrying (Attempt {self.retry_count}/{self.max_retries})"
     
     def mark_started(self):
         """Mark task as started"""
         self.started_at = datetime.now()
         self.status = TaskStatus.IN_PROGRESS
+        self.status_text = "In progress"
     
     def mark_completed(self):
         """Mark task as completed"""
         self.completed_at = datetime.now()
         self.status = TaskStatus.COMPLETED
+        self.status_text = "COMPLETED"
     
     def mark_failed(self, reason: str):
         """Mark task as failed"""
         self.completed_at = datetime.now()
         self.status = TaskStatus.FAILED
+        self.status_text = "FAILED"
         self.last_error = {"reason": reason}
     
     def get_duration(self) -> float:
         """Get execution duration in seconds"""
         if self.started_at and self.completed_at:
             return (self.completed_at - self.started_at).total_seconds()
-        return 0
+        return 0.0
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert state to dictionary for logging"""
@@ -122,15 +130,17 @@ class AgentState:
             "task_id": self.task_id,
             "goal": self.goal,
             "status": self.status.value,
+            "status_text": self.status_text,
             "plan": self.plan,
             "current_step": self.current_step,
             "tool_calls_count": len(self.tool_calls),
             "results_count": len(self.results),
             "errors_count": len(self.errors),
             "retry_count": self.retry_count,
-            "duration": self.get_duration(),
+            "duration_seconds": self.get_duration(),
             "thoughts_count": len(self.thoughts),
             "created_at": self.created_at.isoformat(),
             "started_at": self.started_at.isoformat() if self.started_at else None,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "last_error": self.last_error
         }

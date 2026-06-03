@@ -1,53 +1,45 @@
 #!/bin/bash
-# TUGUMI Self-Autonomous AI Agent Setup Script
+# TUGUMI Setup Script
 
 set -e
 
-echo "=================================================="
-echo "TUGUMI - Self-Autonomous AI Agent Setup"
-echo "=================================================="
+echo "================================"
+echo "TUGUMI Setup"
+echo "================================"
 
-# Create necessary directories
-echo "[1/5] Creating directories..."
-mkdir -p /storage/emulated/0/TUGUMIDesk
-mkdir -p logs
-mkdir -p data
-mkdir -p cache
+# Check Python version
+python_version=$(python3 --version 2>&1 | awk '{print $2}')
+echo "✓ Python version: $python_version"
 
-# Install Python dependencies
-echo "[2/5] Installing Python dependencies..."
+# Create virtual environment if not exists
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+fi
+
+# Activate virtual environment
+echo "Activating virtual environment..."
+source venv/bin/activate || . venv/Scripts/activate
+
+# Install/upgrade pip
+echo "Upgrading pip..."
 pip install --upgrade pip
+
+# Install dependencies
+echo "Installing dependencies..."
 pip install -r requirements.txt
 
-# Create initial configuration
-echo "[3/5] Creating configuration files..."
-cat > .env << 'EOF'
-# TUGUMI Configuration
-LLAMA_SERVER_URL=http://0.0.0.0:8080
-LLAMA_TIMEOUT=300
-LOG_LEVEL=INFO
-OUTPUT_DIR=/storage/emulated/0/TUGUMIDesk
-LOG_DIR=./logs
-CACHE_DIR=./cache
-MAX_MEMORY_ITEMS=100
-MAX_RETRIES=3
-RETRY_DELAY=2
-EOF
-
-# Initialize logging
-echo "[4/5] Initializing logging system..."
+# Create necessary directories
+echo "Creating directories..."
 mkdir -p logs
-touch logs/agent.log
+mkdir -p data
+mkdir -p output
 
-# Verify llama.cpp server connectivity (optional)
-echo "[5/5] Setup Complete!"
-echo "=================================================="
-echo "Configuration Summary:"
-echo "- Local LLM Server: http://0.0.0.0:8080"
-echo "- Output Directory: /storage/emulated/0/TUGUMIDesk"
-echo "- Log Directory: ./logs"
-echo "=================================================="
+echo "================================"
+echo "✓ Setup complete!"
+echo "================================"
 echo ""
-echo "To start the agent, run:"
-echo "  python main.py"
+echo "Next steps:"
+echo "1. Start LLM server: ./main -m model.gguf -c 2048 --host 127.0.0.1 --port 8080"
+echo "2. Run TUGUMI: python main.py 'Your task here'"
 echo ""
