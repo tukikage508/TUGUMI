@@ -17,7 +17,7 @@ class TUGUMIGraph:
         self.memory = memory
         self.logger = logger
         self.tools = ToolExecutor(memory=memory)
-        self.max_steps = 10  # Added: Prevent infinite loops
+        self.max_steps = 10  # Prevent infinite loops
         
         self.graph = StateGraph(dict)
         self._build_graph()
@@ -154,9 +154,15 @@ Format each step as: [STEP N] Description"""
         if not agent_state:
             return state
         
-        # Check for infinite loop
+        # Check for infinite loop - improved boundary check
         if agent_state.current_step >= len(agent_state.plan) or agent_state.current_step >= self.max_steps:
             self.logger.info(f"[EXECUTING] Reached end of plan or max steps ({self.max_steps})")
+            state["reached_end"] = True
+            return state
+        
+        # Boundary check before accessing plan
+        if agent_state.current_step < 0 or agent_state.current_step >= len(agent_state.plan):
+            self.logger.warning(f"[EXECUTING] Invalid step index: {agent_state.current_step}")
             state["reached_end"] = True
             return state
         
